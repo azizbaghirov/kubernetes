@@ -15,6 +15,10 @@ spec:
          nodeSelectorTerms:
          - matchExpressions:
            - key: size
-             operator: In
+             operator: In # or NotIn
              values:
-             - Large
+             - Large      # or Small with operator NotIn  
+             - Medium
+# The in operator means we can place a pod to any node whose label size has any value in the "values" section (in this case Large and Medium)
+# Operator "Exists" will ensure to place a pod to any node with a label set (there may be many nodes with no label set). In this case, we dont have to set "values"
+# section.
