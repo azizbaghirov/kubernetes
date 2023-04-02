@@ -88,7 +88,8 @@ Another way of creating deployment is only specifying the image name with below 
 # kubectl edit deployment myapp-deployment - we can change the version of image by editing opened file.
 Changing the version of app in Kubernetes memory.
 # kubectl set image deployment myapp-deployment nginx=nginx:1.22-perl --record
-# kubectl rollout undo deployment deployment/myapp-deployment
+To rollout the changes we made in our app:
+# kubectl rollout undo deployment myapp-deployment
 
 ================================= Namespaces ================================================
 
