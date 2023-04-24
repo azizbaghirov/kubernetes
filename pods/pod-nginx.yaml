@@ -9,5 +9,6 @@ spec:
    containers:
    - name: nginx
      image: nginx
-#   nodeSelector:
-#     size: Large
+#  nodeSelector:
+#    size: Large
+#  nodeName: node02 - alternatively we can specify certain node for the pod to be scheduled
