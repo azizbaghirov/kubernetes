@@ -7,3 +7,4 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods"]
   verbs: ["list", "create", "delete"]
+  resourceNames: ["blue", "orange"] # we can even specify the names of pods requiered to give access
