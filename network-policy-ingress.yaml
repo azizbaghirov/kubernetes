@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: internal-policy-ingress
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:                # In this network policy definition file, in the ingress rule we separated 'podSelector' and 'namespaceSelector' fields by dash. If 
+            matchLabels:            # there is no dash in front of 'namespaceSelector' field, it means matching 2 rules at the same time (it is similar to 'and' operator 
+              name: api-pod         # in SQL).
+      - namespaceSelector:
+            matchLabels:
+              name: prod
+      - ipBlock:
+            cidr: 192.168.5.10/32
+      ports:
+      - protocol: TCP
+        port: 3306
