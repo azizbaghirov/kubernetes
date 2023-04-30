@@ -12,7 +12,7 @@ spec:
     - from:
       - podSelector:                # In this network policy definition file, in the ingress rule we separated 'podSelector' and 'namespaceSelector' fields by dash. If 
             matchLabels:            # there is no dash in front of 'namespaceSelector' field, it means matching 2 rules at the same time (it is similar to 'and' operator 
-              name: api-pod         # in SQL).
+              name: api-pod         # in SQL). And the ipBlock field means accepting external traffic outside the cluster.
       - namespaceSelector:
             matchLabels:
               name: prod
