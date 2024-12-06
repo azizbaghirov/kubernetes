@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: terraformm
+  namespace: tdac
+  labels:
+    app: myappp
+    type: front-endd
+spec:
+  containers:
+  - name: terraform
+    image: ghcr.io/tda-centre/terraform:1.2
+  imagePullSecrets:
+  - name: github-pull

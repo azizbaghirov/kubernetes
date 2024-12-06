@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: terraform
+  namespace: tdac
+  labels:
+    app: myapp
+    type: front-end
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+      type: front-end
+  template:
+    metadata:
+      labels:
+        app: myapp
+        type: front-end
+    spec:
+      containers:
+      - name: terraform
+        image: ghcr.io/tda-centre/terraform:1.2
+        volumeMounts:
+        - mountPath: /tda-terraform
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: terraform-pvc
+      imagePullSecrets:
+       - name: github-pull
+      nodeName: tdatestworker01 # Use this if you have not configured NFS server
