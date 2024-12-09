@@ -11,3 +11,8 @@ Enter the container terminal of the java app, create a file with the java code. 
 
 Adjust the service name and the commands in the TerraformExecutor.java file
 Also, K8S definition files are given to create deployment from the image.
+To inject the AWS creds into the container we can create a secret and specofy this secret in the deployment definition
+
+# kubectl -n tdac create secret generic aws-credentials \
+  --from-literal=AWS_ACCESS_KEY_ID=<your-access-key-id> \
+  --from-literal=AWS_SECRET_ACCESS_KEY=<your-secret-access-key>

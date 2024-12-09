@@ -19,6 +19,19 @@ spec:
         type: front-end
     spec:
       containers:
+      - env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              key: AWS_ACCESS_KEY_ID
+              name: aws-credentials
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: AWS_SECRET_ACCESS_KEY
+              name: aws-credentials
+        - name: AWS_REGION
+          value: us-east-2
       - name: terraform
         image: ghcr.io/tda-centre/terraform:1.2
         volumeMounts:
