@@ -1,5 +1,4 @@
 import subprocess
-import threading
 
 from flask import Flask, request, jsonify
 
@@ -19,26 +18,24 @@ def run_terraform():
     # fixme : create directory if not exists
     #  if public_ip not exists handle it
     create_instance_copy = f'mkdir -p {new_template_path} && cp -r {template_path} {new_template_path}'
-    run_terraform_instance = f'cd {new_template_path} && terraform init && terraform apply -auto-approve'  # -var "userpublicip={public_ip}"'
+    run_terraform_instance = f'cd {new_template_path} && terraform init && terraform apply -auto-approve' # -var "userpublicip={public_ip}"'
 
-    def run_terraform_async():
-        try:
-            subprocess.run(create_instance_copy, shell=True, text=True, capture_output=True)
-            subprocess.run(run_terraform_instance, shell=True, text=True, capture_output=True)
-        except Exception as e:
-            print(e)
+    try:
+        subprocess.run(create_instance_copy, shell=True, text=True, capture_output=True)
+        result = subprocess.run(run_terraform_instance, shell=True, text=True, capture_output=True)
 
-    thread = threading.Thread(target=run_terraform_async)
-    thread.start()
-
-    return jsonify({'examTemplatePath': new_template_path, 'error': ""}), 200
+        # fixme: handle
+        #   because of env creation will takes time, service should not vait for it
+        return jsonify({'examTemplatePath': new_template_path, 'error': result.stderr}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/instance-public-ip', methods=['GET'])
 def get_instance_ip():
     env_path = request.args.get("examEnvPath")
 
-    get_instance_public_ip = f'cd {env_path} && echo $(terraform output -raw master_public_dns)'
+    get_instance_public_ip = f'cd {env_path} && terraform output -raw worker_dns'
 
     try:
         result = subprocess.run(get_instance_public_ip, shell=True, text=True, capture_output=True)
@@ -52,8 +49,8 @@ def get_instance_ip():
 def start_instance():
     env_path = request.args.get("examEnvPath")
 
-    start_existing_instance = f'cd {env_path} && aws ec2 start-instances --instance-ids $(terraform output -json worker_ids | jq -r ".[]") $(terraform output -raw master_id)'
-    refresh_and_get_new_dns = f'cd {env_path} && terraform refresh && echo $(terraform output -raw master_public_dns)'
+    start_existing_instance = f'cd {env_path} && aws ec2 start-instances --instance-ids $(terraform output -raw worker_id)'
+    refresh_and_get_new_dns = f'cd {env_path} && terraform refresh && echo $(terraform output -raw worker_dns)'
 
     try:
         subprocess.run(start_existing_instance, shell=True, text=True, capture_output=True)
@@ -68,19 +65,13 @@ def start_instance():
 def stop_terraform():
     env_path = request.args.get("examEnvPath")
 
-    stop_existing_instance = f'cd {env_path} && aws ec2 stop-instances --instance-ids $(terraform output -json worker_ids | jq -r ".[]") $(terraform output -raw master_id)'
+    stop_existing_instance = f'cd {env_path} && aws ec2 stop-instances --instance-ids $(terraform output -raw worker_id)'
 
-    def stop_terraform_async():
-        try:
-            result = subprocess.run(stop_existing_instance, shell=True, text=True, capture_output=True)
-            print(jsonify({'output': result.stdout, 'error': result.stderr}), 200)
-        except Exception as e:
-            print(e)
-
-    thread = threading.Thread(target=stop_terraform_async)
-    thread.start()
-
-    return jsonify({'output': "stopping instance", 'error': ""}), 200
+    try:
+        result = subprocess.run(stop_existing_instance, shell=True, text=True, capture_output=True)
+        return jsonify({'output': result.stdout, 'error': result.stderr}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/destroy-instance', methods=['POST'])
