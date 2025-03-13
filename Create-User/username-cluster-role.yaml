@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: username-role
 rules:
-- apiGroups: ["", "extensions", "apps"]
-  resources: ["*"]
+- apiGroups: ["", "extensions", "apps", "networking.k8s.io"]
+  resources: ["*", "ingresses"]
   verbs: ["*"]
 
